@@ -1,5 +1,6 @@
 #include "keyboard.hpp"
 #include <QTimer>
+#include <QStyle>
 
 using biv::KeyBoard;
 
@@ -61,29 +62,38 @@ KeyBoard::KeyBoard(const int width, QWidget* parent)
         emit keyPressed(Qt::Key_Return);
     });
     
-    // 4-я линия
+    // 4-я линия - Левый Shift
     KeyBoardButton* left_shift_btn = new KeyBoardButton("Shift");
     left_shift_btn->setMinimumSize(2 * button_width, button_width);
     left_shift_btn->setAutoExclusive(false);
-    left_shift_btn->setCheckable(true);
+    left_shift_btn->setCheckable(true); // Делаем checkable для визуальной обратной связи
     keys_layout->addWidget(left_shift_btn, 6, 0, 2, 5);
     
-    connect(left_shift_btn, &QPushButton::clicked, this, [this, left_shift_btn]() {
-        left_shift_btn->setChecked(!left_shift_btn->isChecked());
+    connect(left_shift_btn, &QPushButton::pressed, this, [this, left_shift_btn]() {
+        left_shift_btn->setChecked(true);
         emit keyPressed(Qt::Key_Shift);
+    });
+    
+    connect(left_shift_btn, &QPushButton::released, this, [left_shift_btn]() {
+        left_shift_btn->setChecked(false);
     });
     
     create_buttons(keyboard_data->get_line4(), keys_layout, 6, 5);
     
+    // 4-я линия - Правый Shift
     KeyBoardButton* right_shift_btn = new KeyBoardButton("Shift");
     right_shift_btn->setMinimumSize(2 * button_width, button_width);
     right_shift_btn->setAutoExclusive(false);
-    right_shift_btn->setCheckable(true);
+    right_shift_btn->setCheckable(true); // Делаем checkable для визуальной обратной связи
     keys_layout->addWidget(right_shift_btn, 6, 25, 2, 4);
 
-    connect(right_shift_btn, &QPushButton::clicked, this, [this, right_shift_btn]() {
-        right_shift_btn->setChecked(!right_shift_btn->isChecked());
+    connect(right_shift_btn, &QPushButton::pressed, this, [this, right_shift_btn]() {
+        right_shift_btn->setChecked(true);
         emit keyPressed(Qt::Key_Shift);
+    });
+    
+    connect(right_shift_btn, &QPushButton::released, this, [right_shift_btn]() {
+        right_shift_btn->setChecked(false);
     });
 
     // 5-я линия

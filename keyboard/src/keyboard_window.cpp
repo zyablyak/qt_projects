@@ -9,7 +9,12 @@
 
 using biv::KeyBoardWindow;
 
-KeyBoardWindow::KeyBoardWindow(QWidget* parent) : QWidget(parent), caps_lock_enabled(false), shift_pressed(false) {
+KeyBoardWindow::KeyBoardWindow(QWidget* parent) 
+    : QWidget(parent), 
+      caps_lock_enabled(false), 
+      left_shift_pressed(false),
+      right_shift_pressed(false) {
+    
     const int keyboard_width = 1160;
     resize(keyboard_width, 710);
     setWindowTitle("Лучшая Клавиатура");
@@ -41,6 +46,7 @@ KeyBoardWindow::KeyBoardWindow(QWidget* parent) : QWidget(parent), caps_lock_ena
     main_layout->addWidget(display);
     main_layout->addWidget(keyboard);
 
+    // Устанавливаем, что Tab и Space не должны использоваться для навигации
     setFocusPolicy(Qt::ClickFocus);
     
     connect(keyboard, &KeyBoard::keyPressed, this, &KeyBoardWindow::onKeyPressed);
@@ -102,10 +108,12 @@ void KeyBoardWindow::process_key(int key, const QString& sys_text) {
             }
             keyboard->animate_button(Qt::Key_Backspace);
         } else if (key == Qt::Key_Space) {
+            // Просто добавляем пробел
             display->setText(display->toPlainText() + " ");
             display->moveCursor(QTextCursor::End);
             keyboard->animate_button(key);
         } else if (key == Qt::Key_Tab) {
+            // Таб вводит 4 пробела
             display->setText(display->toPlainText() + "    ");
             display->moveCursor(QTextCursor::End);
             keyboard->animate_button(key);
@@ -117,17 +125,21 @@ void KeyBoardWindow::process_key(int key, const QString& sys_text) {
             display->moveCursor(QTextCursor::End);
             keyboard->animate_button(key);
         } else if (key == Qt::Key_Shift) {
-            shift_pressed = true;
+            // Shift только меняет состояние, не сбрасывается
+            left_shift_pressed = true;
         } else {
             QString text = keyboard->get_key_text(key);
 
             if (!text.isEmpty()) {
+                // Определяем регистр
                 bool should_be_upper = caps_lock_enabled;
- 
-                if (shift_pressed && text.length() == 1 && text[0].isLetter()) {
+                
+                // Если нажат Shift, инвертируем регистр для букв
+                if ((left_shift_pressed || right_shift_pressed) && text.length() == 1 && text[0].isLetter()) {
                     should_be_upper = !should_be_upper;
                 }
-
+                
+                // Применяем регистр только для букв
                 if (text.length() == 1 && text[0].isLetter()) {
                     if (should_be_upper) {
                         text = text.toUpper();
@@ -141,10 +153,9 @@ void KeyBoardWindow::process_key(int key, const QString& sys_text) {
                 keyboard->animate_button(key);
             }
         }
-
-        if (key != Qt::Key_Shift) {
-            shift_pressed = false;
-        }
+        
+        // НЕ сбрасываем Shift после нажатия обычной клавиши
+        // Shift должен оставаться активным, пока его удерживают
     }
 }
 
@@ -154,12 +165,20 @@ void KeyBoardWindow::onKeyPressed(int key) {
 
 void KeyBoardWindow::keyPressEvent(QKeyEvent* event) {
     const int key = normalize_key(event->key());
-
+    
+    // Обрабатываем нажатие Shift
+    if (key == Qt::Key_Shift) {
+        if (event->key() == Qt::Key_Shift) {
+            left_shift_pressed = true;
+        }
+    }
+    
+    // Если это Tab или Space, обрабатываем их как символы, а не как навигацию
     if (key == Qt::Key_Tab) {
-        event->accept();
+        event->accept(); // Предотвращаем стандартную обработку
         process_key(key, event->text());
     } else if (key == Qt::Key_Space) {
-        event->accept();
+        event->accept(); // Предотвращаем стандартную обработку
         process_key(key, event->text());
     } else {
         process_key(key, event->text());
@@ -168,8 +187,14 @@ void KeyBoardWindow::keyPressEvent(QKeyEvent* event) {
 }
 
 void KeyBoardWindow::keyReleaseEvent(QKeyEvent* event) {
-    if (event->key() == Qt::Key_Shift) {
-        shift_pressed = false;
+    const int key = normalize_key(event->key());
+    
+    // Обрабатываем отпускание Shift
+    if (key == Qt::Key_Shift) {
+        if (event->key() == Qt::Key_Shift) {
+            left_shift_pressed = false;
+        }
     }
+    
     QWidget::keyReleaseEvent(event);
 }

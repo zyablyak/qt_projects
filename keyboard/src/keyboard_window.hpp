@@ -17,7 +17,8 @@ namespace biv {
             QTextEdit* display;
             KeyBoard* keyboard;
             bool caps_lock_enabled;
-            bool shift_pressed;
+            bool left_shift_pressed;
+            bool right_shift_pressed;
 
         public:
             KeyBoardWindow(QWidget* parent = nullptr);
