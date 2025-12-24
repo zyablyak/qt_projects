@@ -26,6 +26,14 @@ void Game::add_static_obj(Rect* obj) {
 	static_objs.push_back(obj);
 }
 
+void Game::set_finish(Rect* finish) noexcept {
+	finish_ = finish;
+}
+
+void Game::clear_finish() noexcept {
+	finish_ = nullptr;
+}
+
 void Game::check_horizontally_static_collisions() noexcept {
 	for (Collisionable* obj: collisionable_objs) {
 		for (Rect* static_obj: static_objs) {
@@ -45,7 +53,7 @@ void Game::check_mario_collision() {
 			if (!mario->is_active()) {
 				break;
 			} else if (!obj->is_active()) {
-				// TODO
+				
 				collisionable_objs[i] = collisionable_objs.back();
 				collisionable_objs.pop_back();
 				i--;
@@ -135,6 +143,7 @@ void Game::remove_objs() {
 	map_movable_objs.clear();
 	movable_objs.clear();
 	static_objs.clear();
+	clear_finish();
 	remove_mario();
 }
 

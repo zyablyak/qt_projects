@@ -6,7 +6,6 @@
 
 using biv::os::UserInput;
 
-// Функция для настройки неблокирующего ввода
 static void set_nonblocking_mode(bool enable) {
     static struct termios oldt, newt;
     static bool initialized = false;
@@ -25,7 +24,6 @@ static void set_nonblocking_mode(bool enable) {
     }
 }
 
-// Функция проверки нажатия клавиши
 static bool kbhit() {
     struct termios oldt, newt;
     int ch;
@@ -57,11 +55,10 @@ UserInput biv::os::get_user_input() {
     }
     
     int ch = getchar();
-    
-    // Обработка escape-последовательностей для специальных клавиш
+
     if (ch == 27) { // ESC
         if (!kbhit()) {
-            return UserInput::EXIT; // Обычная клавиша ESC
+            return UserInput::EXIT;
         }
         
         ch = getchar();
@@ -70,21 +67,17 @@ UserInput biv::os::get_user_input() {
                 return UserInput::NO_INPUT;
             }
             ch = getchar();
-            
-            // Стрелки и другие специальные клавиши
+
             switch (ch) {
-                // В этой версии стрелки не используются, но можно добавить при необходимости
                 default:
                     return UserInput::NO_INPUT;
             }
         } else {
-            // Если после ESC не идет '[', то это просто ESC
             ungetc(ch, stdin);
             return UserInput::EXIT;
         }
     }
-    
-    // Обработка обычных символов
+
     switch (ch) {
         case 'a':
         case 'A':
@@ -94,7 +87,7 @@ UserInput biv::os::get_user_input() {
             return UserInput::MAP_LEFT;
         case ' ':
             return UserInput::MARIO_JUMP;
-        case 'q':  // В Linux часто используют 'q' для выхода
+        case 'q':
         case 'Q':
             return UserInput::EXIT;
         default:

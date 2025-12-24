@@ -21,6 +21,8 @@ namespace biv {
 			bool is_finished_ = false;
 			bool is_level_end_ = false;
 			
+			Rect* finish_ = nullptr;
+
 		public:
 			Game();
 			
@@ -29,6 +31,9 @@ namespace biv {
 			void add_mario(Mario*);
 			void add_movable(Movable*);
 			void add_static_obj(Rect*);
+
+			void set_finish(Rect* finish) noexcept;
+			void clear_finish() noexcept;
 			
 			void check_horizontally_static_collisions() noexcept;
 			void check_mario_collision();

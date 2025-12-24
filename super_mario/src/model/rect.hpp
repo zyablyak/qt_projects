@@ -12,7 +12,8 @@ namespace biv {
 		public:
 			Rect() = default;
 			Rect(const Coord& top_left, const int width, const int height);
-
+			virtual ~Rect() = default;
+			
 			int get_bottom() const noexcept;
 			int get_height() const noexcept;
 			int get_left() const noexcept;
